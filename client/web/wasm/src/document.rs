@@ -150,19 +150,19 @@ pub fn toggle_layer_expansion(path: Vec<LayerId>) -> Result<(), JsValue> {
 
 ///  Renames a layer from the layer list
 #[wasm_bindgen]
-pub fn rename_layer(path: Vec<LayerId>, new_name: String) -> Result<(), JsValue> {
+pub fn rename_layer(path: Vec<LayerId>, name: String) -> Result<(), JsValue> {
 	EDITOR_STATE
-		.with(|editor| editor.borrow_mut().handle_event(events::Event::RenameLayer(path, new_name)))
+		.with(|editor| editor.borrow_mut().handle_event(events::Event::RenameLayer(path, name)))
 		.map_err(convert_error)
 }
 
 ///  Deletes a layer from the layer list
 #[wasm_bindgen]
-pub fn delete_layer(path: Vec<LayerId>) -> Result<(), JsValue> {
+pub fn delete_layer(path: Vec<LayerId>, name: String) -> Result<(), JsValue> {
 	EDITOR_STATE.with(|editor| editor.borrow_mut().handle_event(events::Event::DeleteLayer(path))).map_err(convert_error)
 }
 
-///  Requests the backend to add a layer to the layer list
+///  Deletes a layer from the layer list
 #[wasm_bindgen]
 pub fn add_layer(path: Vec<LayerId>) -> Result<(), JsValue> {
 	EDITOR_STATE.with(|editor| editor.borrow_mut().handle_event(events::Event::AddLayer(path))).map_err(convert_error)
