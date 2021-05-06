@@ -24,51 +24,37 @@ export function registerResponseHandler(responseType: ResponseType, callback: Re
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function parseResponse(origin: string, responseType: string, data: any): Response {
-	type OriginNames = "Document" | "Tool";
-
-	const originHandlers = {
-		Document: () => {
-			switch (responseType) {
+function parseResponse(origin: string, type: string, data: any): Response {
+	switch (origin) {
+		case "Document":
+			switch (type) {
 				case "DocumentChanged":
-					return (data.Document.DocumentChanged as DocumentChanged) as Response;
+					return data.Document.DocumentChanged as Response;
 				case "CollapseFolder":
-					return (data.Document.CollapseFolder as CollapseFolder) as Response;
+					return data.Document.CollapseFolder as Response;
 				case "ExpandFolder":
 					return (data.Document.ExpandFolder as ExpandFolder) as Response;
-				default:
-					return undefined;
 			}
-		},
-		Tool: () => {
-			switch (responseType) {
+		case "Tool":
+			switch (type) {
 				case "SetActiveTool":
-					return (data.Tool.SetActiveTool as SetActiveTool) as Response;
+					return data.Tool.SetActiveTool as Response;
 				case "UpdateCanvas":
-					return (data.Tool.UpdateCanvas as UpdateCanvas) as Response;
-				default:
-					return undefined;
+					return data.Tool.UpdateCanvas as Response;
 			}
-		},
-	};
-
-	// TODO: Optional chaining would be nice here when we can upgrade to Webpack 5: https://github.com/webpack/webpack/issues/10227
-	// const response = originHandlers[origin as OriginNames]?.();
-	const response = originHandlers[origin as OriginNames] && originHandlers[origin as OriginNames]();
-	if (!response) throw new Error("ResponseType not recognized.");
-	return response;
+		default:
+			throw new Error("ResponseType not recognized");
+	}
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function handleResponse(responseIdentifier: string, responseData: any) {
-	const [origin, responesType] = responseIdentifier.split("::", 2);
-	const callback = window.responseMap[responesType];
-	const data = parseResponse(origin, responesType, responseData);
+export function handleResponse(responseType: ResponseType, responseData: any) {
+	const [origin, type] = responseType.split("::", 2);
+	const callback = window.responseMap[type];
+	const data = parseResponse(origin, type, responseData);
 
-	if (callback && data) {
+	if (callback) {
 		callback(data);
-	} else if (data) {
-		console.error(`Received a Response of type "${responseIdentifier}" but no handler was registered for it from the client.`);
 	} else {
 		console.error(`Received a Response of type "${responseIdentifier}" but but was not able to parse the data.`);
 	}
@@ -82,7 +68,7 @@ export interface SetActiveTool {
 export interface UpdateCanvas {
 	document: string;
 }
-export type DocumentChanged = {};
+export interface DocumentChanged {}
 export interface CollapseFolder {
 	path: Array<number>;
 }
@@ -95,8 +81,6 @@ export interface LayerPanelEntry {
 	name: string;
 	visible: boolean;
 	layer_type: LayerType;
-	collapsed: boolean;
-	path: Array<number>;
 }
 
 export enum LayerType {
