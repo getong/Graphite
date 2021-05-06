@@ -7,21 +7,23 @@
 		</LayoutRow>
 		<LayoutRow :class="'layer-tree'">
 			<LayoutCol :class="'list'">
-				<div class="layer-row" v-for="layer in layers" :key="layer.path">
+				<div
+					class="layer-row"
+					v-for="layer in layers"
+					:key="layer.path"
+				>
 					<div class="layer-visibility">
 						<IconButton @click="toggleLayerVisibility(layer)" :size="24" :title="layer.visible ? 'Visible' : 'Hidden'">
 							<EyeVisible v-if="layer.visible" />
 							<EyeHidden v-if="!layer.visible" />
 						</IconButton>
 					</div>
-					<div class="layer">
-						<div class="layer-thumbnail"></div>
-						<div class="layer-type-icon">
-							<IconContainer :size="24" title="Path"><NodeTypePath /></IconContainer>
-						</div>
-						<div class="layer-name">
-							<span>{{ layer.name }}</span>
-						</div>
+					<div class="layer-thumbnail"></div>
+					<div class="layer-type-icon">
+						<IconContainer :size="24" title="Path"><NodeTypePath /></IconContainer>
+					</div>
+					<div class="layer-name">
+						<span>{{layer.name}}</span>
 					</div>
 				</div>
 			</LayoutCol>
